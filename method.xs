@@ -10,8 +10,6 @@
 #define KEY     "method"
 #define MESSAGE "Method %s::%s() called as a function"
 
-#define WARN_METHOD warn_method
-
 static U32 warn_method;
 
 typedef OP* (*ck_t)(pTHX_ OP*);
@@ -20,9 +18,9 @@ static ck_t old_ck_entersub = NULL;
 static OP*
 method_ck_entersub(pTHX_ OP* o){
 	dVAR;
-	OP* kid;
+	register OP* kid;
 
-	if(!ckWARN(WARN_METHOD)){
+	if(!ckWARN(warn_method)){
 		goto end;
 	}
 
@@ -35,19 +33,25 @@ method_ck_entersub(pTHX_ OP* o){
 	kid = kUNOP->op_first;
 	assert(kid->op_type == OP_PUSHMARK);
 
+	/* skip args */
 	while(kid->op_sibling){
 		kid = kid->op_sibling;
 	}
 
-	if(kid->op_type == OP_RV2CV && (kid = kUNOP->op_first) && (kid->op_type == OP_GV)){
-		GV* gv = (GV*)PAD_SV(kPADOP->op_padix);
+	if(kid->op_type == OP_RV2CV && (kid = kUNOP->op_first)->op_type == OP_GV){
+		GV* gv;
 		CV* cv;
+#ifdef USE_ITHREADS
+		gv = (GV*)PAD_SV(kPADOP->op_padix);
+#else
+		gv = (GV*)kSVOP->op_sv;
+#endif
 
 		assert(gv != NULL);
 		assert(SvTYPE(gv) == SVt_PVGV);
 
 		if((cv = GvCV(gv)) && CvMETHOD(cv)){
-			Perl_warner(aTHX_ WARN_METHOD,
+			Perl_warner(aTHX_ warn_method,
 				MESSAGE,
 				HvNAME(GvSTASH(gv)), GvNAME(gv));
 		}
@@ -63,10 +67,9 @@ PROTOTYPES: DISABLE
 
 BOOT:
 {
-	/* per-thread static storage */
 	/* fetch the offset from %warnings::Offsets */
 	SV* offset  = *hv_fetchs(get_hv("warnings::Offsets", TRUE), KEY, TRUE);
-	WARN_METHOD = (U32)(SvUV(offset) / 2);
+	warn_method = (U32)(SvUV(offset) / 2);
 	/* install my ck_entersub */
 	old_ck_entersub = PL_check[OP_ENTERSUB];
 	PL_check[OP_ENTERSUB] = method_ck_entersub;

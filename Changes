@@ -1,5 +1,8 @@
 Revision history for method
 
+0.02 Tue Sep  9 09:24:38 2008
+	- fix SEGV on perls without threads
+
 0.01  Fri Sep  5 22:09:00 2008
 	- original version; created by Module::Starter
 

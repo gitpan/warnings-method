@@ -12,7 +12,7 @@ use warnings;
 	use warnings::register;
 }
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use XSLoader;
 XSLoader::load(__PACKAGE__, $VERSION);
@@ -52,7 +52,7 @@ warnings::method - Produces warnings if methods are called as functions
 
 =head1 VERSION
 
-This document describes method version 0.01
+This document describes method version 0.02
 
 =head1 SYNOPSIS
 

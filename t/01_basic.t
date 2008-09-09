@@ -39,7 +39,7 @@ is $nwarns, 2, 'warned in compile time';
 {
 	use warnings::method;
 
-	is(A::foo(), 'foo', 'A::foo() called as a function (producing warnings)');
+	is(A::foo(), 'foo', 'A::foo() called as a function (nwarns++)');
 	is(A->foo(), 'foo', 'A->foo() called as a method');
 
 	is(A::bar(), 'bar', 'A::bar() called as a function');
@@ -57,4 +57,5 @@ is $nwarns, 2, 'warned in compile time';
 	is(A->bar(), 'bar', 'A->bar() called as a method');
 }
 
-is(A::foo(), 'foo', 'under -w (nwarns++)');
+
+is(&A::foo, 'foo', 'under -w (nwarns++)');
