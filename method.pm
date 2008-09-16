@@ -5,14 +5,14 @@ use 5.008_001;
 use strict;
 use warnings;
 
+our $VERSION = '0.03';
+
 # register 'method', rather than 'warnings::method'
 {
 	package # hidden from CPAN indexer
 		method;
 	use warnings::register;
 }
-
-our $VERSION = '0.02';
 
 use XSLoader;
 XSLoader::load(__PACKAGE__, $VERSION);
@@ -24,18 +24,17 @@ sub UNIVERSAL::isa     :method;
 sub import{
 	shift;
 
-	my @args;
-
-	while(defined(my $cmd = shift)){
+	foreach my $cmd(@_){
 		if($cmd ne 'FATAL' and  $cmd ne 'NONFATAL'){
 			require Carp;
 			Carp::croak('Usage: use warnings::method ["FATAL" or "NONFATAL"]');
 		}
 		else{
-			@args = ($cmd => 'method');
+			warnings->import($cmd => 'method');
 		}
 	}
-	warnings->import(@args ? @args : qw(method));
+
+	warnings->import('method') unless @_;
 	return;
 }
 sub unimport{
@@ -52,7 +51,7 @@ warnings::method - Produces warnings if methods are called as functions
 
 =head1 VERSION
 
-This document describes method version 0.02
+This document describes warnings::method version 0.03
 
 =head1 SYNOPSIS
 
@@ -63,23 +62,34 @@ This document describes method version 0.02
 	# ...
     }
 
-    Foo::bar(); # WARN: 'Method Foo::bar() called as a function'
     Foo->bar(); # OK
+
+    # the following cases warnings "Method Foo::bar() called as a function"
+
+    Foo::bar();                  # WARN
+
+    my $method_ref = \&Foo::bar; # WARN
+
+    sub f{
+        goto &Foo::bar;          # WARN
+    }
+
 
 =head1 DESCRIPTION
 
+You shouldn't call a method as a function, e.g. C<UNIVERSAL::isa($o, 'ARRAY')>.
+It's considered harmful, because such code doesn't call overridden
+methods in any classes.
 This pragmatic module produces warnings if methods are called as functions.
 Here, I<methods> are subroutines declared with the B<:method> attribute.
 
-This module scans compiled opcode tree, checks subroutine calls and produces
-warnings when dangerous function calls are detected. All the processes finish
-in compile time, so this module has no effect on run-time behaviors.
+This module scans the compiled syntax tree, checks function calls and
+produces warnings when dangerous function calls are detected.
+All the processes finish in compile time, so this module has no effect on
+run-time behavior.
 
 The C<UNIVERSAL::isa> and C<UNIVERSAL::can> distributions are modules based on
-the same concept, but they produce warnings at run time, in contract to
-C<warnings::method>.
-
-See L<UNIVERSAL::isa> and L<UNIVERSL::can> for details.
+the same concept, but they produce warnings at run time.
 
 =head1 INTERFACE
 
@@ -107,6 +117,8 @@ L<UNIVERSAL>.
 L<UNIVERSAL::isa>.
 
 L<UNIVERSAL::can>.
+
+L<perllexwarn>.
 
 =head1 AUTHOR
 

@@ -4,6 +4,7 @@ example/benchmark.pl
 example/Foo.pm
 example/scan_libs.pl
 example/simple.pl
+example/universal.pl
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Makefile.pm
@@ -19,5 +20,6 @@ README
 t/00_load.t
 t/01_basic.t
 t/02_fatal.t
+t/03_orig_names.t
 t/99_pod-coverage.t
 t/99_pod.t

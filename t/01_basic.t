@@ -1,7 +1,7 @@
 #!perl -w
 
 use strict;
-use Test::More tests => 10;
+use Test::More tests => 12;
 
 use warnings::method ();
 
@@ -24,7 +24,7 @@ BEGIN{
 	};
 }
 
-is $nwarns, 2, 'warned in compile time';
+is $nwarns, 3, 'warned in compile time';
 
 {
 	package A;
@@ -59,3 +59,7 @@ is $nwarns, 2, 'warned in compile time';
 
 
 is(&A::foo, 'foo', 'under -w (nwarns++)');
+
+is( A->can('foo')->(), 'foo', 'CodeRef->()');
+
+is ref(\&A::foo), 'CODE', 'getref for method (nwarns++)';

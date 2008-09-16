@@ -39,18 +39,14 @@ method_ck_entersub(pTHX_ OP* o){
 	}
 
 	if(kid->op_type == OP_RV2CV && (kid = kUNOP->op_first)->op_type == OP_GV){
-		GV* gv;
+		GV* gv = kGVOP_gv;
 		CV* cv;
-#ifdef USE_ITHREADS
-		gv = (GV*)PAD_SV(kPADOP->op_padix);
-#else
-		gv = (GV*)kSVOP->op_sv;
-#endif
 
 		assert(gv != NULL);
 		assert(SvTYPE(gv) == SVt_PVGV);
 
 		if((cv = GvCV(gv)) && CvMETHOD(cv)){
+			gv = CvGV(cv);
 			Perl_warner(aTHX_ warn_method,
 				MESSAGE,
 				HvNAME(GvSTASH(gv)), GvNAME(gv));

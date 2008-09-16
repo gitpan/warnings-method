@@ -3,6 +3,7 @@ package
 
 use Moose;
 
+# requires BEGIN blocks for run-time definitions
 BEGIN{
 	has bar => (is => 'rw');
 }

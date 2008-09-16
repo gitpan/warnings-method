@@ -2,7 +2,7 @@ NAME
     warnings::method - Produces warnings if methods are called as functions
 
 VERSION
-    This document describes method version 0.02
+    This document describes warnings::method version 0.03
 
 SYNOPSIS
         use warnings::method; # or use warnings::method 'FATAL';
@@ -12,22 +12,36 @@ SYNOPSIS
             # ...
         }
 
-        Foo::bar(); # WARN: 'Method Foo::bar() called as a function'
         Foo->bar(); # OK
 
-DESCRIPTION
-    This pragmatic module produces warnings if methods are called as
-    functions. Here, *methods* are subroutines declared with the :method
-    attribute.
+        # the following cases warnings "Method Foo::bar() called as a function"
 
-    This module scans compiled opcode tree, checks subroutine calls and
-    warns when dangerous function calls are detected. All the processes
-    finish in compile time, so this module has no effect on run-time
-    performance.
+        Foo::bar();                  # WARN
+
+        my $method_ref = \&Foo::bar; # WARN
+
+        sub f{
+            goto &Foo::bar;          # WARN
+        }
+
+DESCRIPTION
+    You shouldn't call a method as a function, e.g. "UNIVERSAL::isa($o,
+    'ARRAY')". It's considered harmful, because such code doesn't call
+    overridden methods in any classes. This pragmatic module produces
+    warnings if methods are called as functions. Here, *methods* are
+    subroutines declared with the :method attribute.
+
+    This module scans the compiled syntax tree, checks function calls and
+    produces warnings when dangerous function calls are detected. All the
+    processes finish in compile time, so this module has no effect on
+    run-time behavior.
+
+    The "UNIVERSAL::isa" and "UNIVERSAL::can" distributions are modules
+    based on the same concept, but they produce warnings at run time.
 
 INTERFACE
   "use/no warnings::method;"
-    Enable/Disable the "method" warnings. These are equivalent to "use/no
+    Enables/Disables the "method" warnings. They are equivalent to "use/no
     warnings 'method'" if "warnings::method" is already loaded.
 
 DEPENDENCIES
@@ -41,14 +55,13 @@ BUGS AND LIMITATIONS
     <http://rt.cpan.org/>.
 
 SEE ALSO
-    The following has the same concept to forbid people to call methods as
-    functions.
+    UNIVERSAL.
 
-    UNIVERSAL::isa - Attempt to recover from people calling UNIVERSAL::isa
-    as a function
+    UNIVERSAL::isa.
 
-    UNIVERSAL::can - Hack around people calling UNIVERSAL::can() as a
-    function
+    UNIVERSAL::can.
+
+    perllexwarn.
 
 AUTHOR
     Goro Fuji <gfuji(at)cpan.org>
