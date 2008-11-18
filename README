@@ -1,74 +1,31 @@
 NAME
-    warnings::method - Produces warnings if methods are called as functions
 
-VERSION
-    This document describes warnings::method version 0.03
+warnings::method - Produces warnings if methods are called as functions
 
 SYNOPSIS
-        use warnings::method; # or use warnings::method 'FATAL';
 
-        package Foo;
-        sub bar :method{
-            # ...
-        }
+	use warnings::method;  # installs the check routine as 'syntax'
+	use warnings 'syntax'; # enables  the check routine
 
-        Foo->bar(); # OK
+	Or, try "perl -Mblib example/synopsis.pl" after "make test".
 
-        # the following cases warnings "Method Foo::bar() called as a function"
+INSTALLATION
 
-        Foo::bar();                  # WARN
+	To install this module, run the following commands:
 
-        my $method_ref = \&Foo::bar; # WARN
-
-        sub f{
-            goto &Foo::bar;          # WARN
-        }
-
-DESCRIPTION
-    You shouldn't call a method as a function, e.g. "UNIVERSAL::isa($o,
-    'ARRAY')". It's considered harmful, because such code doesn't call
-    overridden methods in any classes. This pragmatic module produces
-    warnings if methods are called as functions. Here, *methods* are
-    subroutines declared with the :method attribute.
-
-    This module scans the compiled syntax tree, checks function calls and
-    produces warnings when dangerous function calls are detected. All the
-    processes finish in compile time, so this module has no effect on
-    run-time behavior.
-
-    The "UNIVERSAL::isa" and "UNIVERSAL::can" distributions are modules
-    based on the same concept, but they produce warnings at run time.
-
-INTERFACE
-  "use/no warnings::method;"
-    Enables/Disables the "method" warnings. They are equivalent to "use/no
-    warnings 'method'" if "warnings::method" is already loaded.
+		perl Makefile.PL
+		make
+		make test
+		make install
 
 DEPENDENCIES
-    Perl 5.8.1 or later, and a C compiler.
 
-BUGS AND LIMITATIONS
-    No bugs have been reported.
+	Perl 5.8.1 or later, and a C compiler.
 
-    Please report any bugs or feature requests to
-    "bug-warnings-method@rt.cpan.org/", or through the web interface at
-    <http://rt.cpan.org/>.
+COPYRIGHT AND LICENCE
 
-SEE ALSO
-    UNIVERSAL.
+	Copyright (C) 2008, Goro Fuji <gfuji(at)cpan.org>, Some rights reversed.
 
-    UNIVERSAL::isa.
-
-    UNIVERSAL::can.
-
-    perllexwarn.
-
-AUTHOR
-    Goro Fuji <gfuji(at)cpan.org>
-
-LICENSE AND COPYRIGHT
-    Copyright (c) 2008, Goro Fuji <gfuji(at)cpan.org>. Some rights reserved.
-
-    This module is free software; you can redistribute it and/or modify it
-    under the same terms as Perl itself.
+	This library is free software; you can redistribute it and/or modify
+	it under the same terms as Perl itself.
 

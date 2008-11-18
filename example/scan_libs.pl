@@ -5,7 +5,7 @@ use strict;
 use Module::CoreList;
 use Module::Load::Conditional qw(check_install requires);
 
-use warnings::method;
+use warnings::method -global;
 
 unless(@ARGV){
 	push @ARGV, '5.00503';

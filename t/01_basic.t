@@ -3,7 +3,7 @@
 use strict;
 use Test::More tests => 12;
 
-use warnings::method ();
+use warnings::method;
 
 our $nwarns;
 
@@ -37,7 +37,7 @@ is $nwarns, 3, 'warned in compile time';
 }
 
 {
-	use warnings::method;
+	use warnings 'syntax';
 
 	is(A::foo(), 'foo', 'A::foo() called as a function (nwarns++)');
 	is(A->foo(), 'foo', 'A->foo() called as a method');
@@ -48,7 +48,7 @@ is $nwarns, 3, 'warned in compile time';
 }
 
 {
-	no warnings::method;
+	no warnings 'syntax';
 
 	is(A::foo(), 'foo', 'A::foo() called as a function');
 	is(A->foo(), 'foo', 'A->foo() called as a method');

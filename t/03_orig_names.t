@@ -2,7 +2,9 @@
 use strict;
 use Test::More tests => 2;
 
-use warnings::method 'FATAL';
+use warnings::method;
+use warnings FATAL => 'syntax';
+
 use UNIVERSAL qw(isa);
 
 ok !eval q{

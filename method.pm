@@ -3,42 +3,25 @@ package warnings::method;
 use 5.008_001;
 
 use strict;
-use warnings;
 
-our $VERSION = '0.03';
-
-# register 'method', rather than 'warnings::method'
-{
-	package # hidden from CPAN indexer
-		method;
-	use warnings::register;
-}
+our $VERSION = '0.10';
 
 use XSLoader;
 XSLoader::load(__PACKAGE__, $VERSION);
 
-# re-declaration of built-in methods
+# re-declaration for built-in methods
 sub UNIVERSAL::can     :method;
 sub UNIVERSAL::isa     :method;
 
 sub import{
 	shift;
-
-	foreach my $cmd(@_){
-		if($cmd ne 'FATAL' and  $cmd ne 'NONFATAL'){
-			require Carp;
-			Carp::croak('Usage: use warnings::method ["FATAL" or "NONFATAL"]');
-		}
-		else{
-			warnings->import($cmd => 'method');
-		}
+	if(@_){
+		_set_mode(@_);
 	}
 
-	warnings->import('method') unless @_;
-	return;
-}
-sub unimport{
-	warnings->unimport('method');
+	$^H |= 0x00020000; # HINT_LOCALIZE_HH
+	$^H{(__PACKAGE__)} = 1;
+
 	return;
 }
 
@@ -51,11 +34,13 @@ warnings::method - Produces warnings if methods are called as functions
 
 =head1 VERSION
 
-This document describes warnings::method version 0.03
+This document describes warnings::method version 0.10
 
 =head1 SYNOPSIS
 
-    use warnings::method; # or use warnings::method 'FATAL';
+    use warnings::method;         # installs the check routine lexically
+    use warnings::method -global; # or installs it globally
+	use warnings 'syntax';        # enables the check routine
 
     package Foo;
     sub bar :method{
@@ -73,7 +58,6 @@ This document describes warnings::method version 0.03
     sub f{
         goto &Foo::bar;          # WARN
     }
-
 
 =head1 DESCRIPTION
 
@@ -93,10 +77,23 @@ the same concept, but they produce warnings at run time.
 
 =head1 INTERFACE
 
-=head2 C<use/no warnings::method;>
+=head2 C<use warnings::method> or C<use warnings::method -lexical>
 
-Enables/Disables the C<method> warnings. They are equivalent to
-C<use/no warnings 'method'> if C<warnings::method> is already loaded.
+Installs the C<method> check routine with lexical scope.
+
+Note that the lexicality is limited before 5.10.0.
+
+=head2 C<use warnings::method -global>
+
+Installs the C<method> check routine with global scope,
+where this pragma checks all programs.
+
+=head2 C<use/no warnings 'syntax';>
+
+Enables/Disables the C<method> check routine.
+
+Note that the C<syntax> warning is defined by default, so you can always use it
+even if C<warnings::method> is not loaded.
 
 =head1 DEPENDENCIES
 
@@ -119,6 +116,8 @@ L<UNIVERSAL::isa>.
 L<UNIVERSAL::can>.
 
 L<perllexwarn>.
+
+L<warnings::unused>.
 
 =head1 AUTHOR
 
